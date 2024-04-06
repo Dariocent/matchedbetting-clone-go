@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello, World!</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+    <form id="loginForm" hx-post="/login" hx-target="#loginResult">
+        <label for="Email">Email:</label>
+        <input type="text" id="Email" name="Email" required><br><br>
+        <label for="Password">Password:</label>
+        <input type="password" id="Password" name="Password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <form id="signupForm" hx-post="/signup" hx-target="#signupResult">
+        <label for="Email">Email:</label>
+        <input type="text" id="Email" name="Email" required><br><br>
+        <label for="Password">Password:</label>
+        <input type="password" id="Password" name="Password" required><br><br>
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <div id="signupResult"></div>
+
+    <div id="loginResult"></div>
+
+    <script src="https://unpkg.com/htmx.org@latest"></script>
+</body>
+</html>
