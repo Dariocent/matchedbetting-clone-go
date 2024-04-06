@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello, World!</title>
+</head>
+<body>
+    <ul id="matches-list">
+        {{range .}}
+            <div class="shadow-1-strong bg-white my-5 p-5" id="articles">
+            <li>
+                <p>{{.Team1}}</p>
+                <p>{{.Team2}}</p>
+                <p>{{.OddsArray}}</p>
+
+            </li>
+            </div>
+        {{end}}
+    </ul>
+</body>
+</html>

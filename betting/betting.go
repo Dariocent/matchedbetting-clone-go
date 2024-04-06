@@ -1,30 +1,17 @@
-// package betting
-
-// import (
-// 	"fmt"
-// 	"log"
-// 	"net/http"
-// 	"strings"
-
-// 	"github.com/PuerkitoBio/goquery"
-// 	"github.com/gin-gonic/gin"
-// )
-
-package main
+package betting
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	GetMarathonBet()
-}
-func GetMarathonBet() {
+func GetMarathonBet(c *gin.Context) {
 	// Make HTTP request
 	response, err := http.Get("https://www.marathonbet.it/it/popular/Football/Italy/Serie+A/")
 	if err != nil {
@@ -38,29 +25,69 @@ func GetMarathonBet() {
 		log.Fatal("Error loading HTTP response body. ", err)
 	}
 
+	if document == nil {
+		log.Fatal("Document is nil")
+	}
+
+	// Initialize matches variable
+	//matches is a slice of structs
+	//define match struct
+	type Match struct {
+		Team1     string
+		Team2     string
+		OddsArray []string
+	}
+	matches := []Match{}
+
 	// Find the ul list with event details
+
 	document.Find(".bg").Each(func(i int, match *goquery.Selection) {
 		team1 := match.Find(".member").First().Text()
 		team1 = strings.TrimSpace(team1)
-		//remove everything -
+
 		team2 := match.Find(".member").Last().Text()
 		team2 = strings.Split(team2, "—")[1]
 		team2 = strings.TrimSpace(team2)
 
-		fmt.Println(team1, team2)
-
-		//coefficients row
-		oddsArray := []string{} //1 x 2
+		oddsArray := []string{}
 		match.Find(".coefficients-row").Each(func(j int, odds *goquery.Selection) {
 			odd := odds.Find(".right-simple").Text()
 			odd = strings.TrimSpace(strings.ReplaceAll(odd, "\n", ""))
 			oddsArray = append(oddsArray, odd)
 		})
 
-		fmt.Println(oddsArray)
+		// add match to matches
+		current_match := Match{
+			Team1:     team1,
+			Team2:     team2,
+			OddsArray: oddsArray,
+		}
+
+		matches = append(matches, current_match)
+
 	})
-	// Respond
-	// c.JSON(http.StatusOK, gin.H{})
+
+	//print matches
+	for _, match := range matches {
+		fmt.Println(match.Team1, " vs ", match.Team2, " ", match.OddsArray)
+	}
+
+	// Parse the template file
+	t, err := template.ParseFiles("templates/betting.html")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Error parsing template")
+		return
+	}
+
+	// Execute the template with the article data
+	if err := t.Execute(c.Writer, matches); err != nil {
+		c.String(http.StatusInternalServerError, "Error executing template")
+		return
+	}
+
+	// c.HTML(http.StatusOK, "betting.html", gin.H{
+	// 	"matches": matches,
+	// })
 
 }
 func GetBetfair() {

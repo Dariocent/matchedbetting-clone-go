@@ -16,10 +16,15 @@ func init() {
 
 func main() {
 	r := gin.Default()
+
+	// Load templates
+	r.LoadHTMLGlob("templates/*")
+
+	// Routes
 	r.POST("/signup", controllers.Signup)
 	r.POST("/login", controllers.Login)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 	r.StaticFile("/", "./templates/index.html")
-	r.GET("/betting", middleware.RequireAuth, betting.Betting)
+	r.GET("/betting", betting.GetMarathonBet)
 	r.Run()
 }
