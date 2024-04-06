@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Dariocent/matchedbetting-clone-go/models"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 )
@@ -32,12 +33,8 @@ func GetMarathonBet(c *gin.Context) {
 	// Initialize matches variable
 	//matches is a slice of structs
 	//define match struct
-	type Match struct {
-		Team1     string
-		Team2     string
-		OddsArray []string
-	}
-	matches := []Match{}
+
+	matches := []models.Match{}
 
 	// Find the ul list with event details
 
@@ -57,7 +54,7 @@ func GetMarathonBet(c *gin.Context) {
 		})
 
 		// add match to matches
-		current_match := Match{
+		current_match := models.Match{
 			Team1:     team1,
 			Team2:     team2,
 			OddsArray: oddsArray,
@@ -84,10 +81,6 @@ func GetMarathonBet(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Error executing template")
 		return
 	}
-
-	// c.HTML(http.StatusOK, "betting.html", gin.H{
-	// 	"matches": matches,
-	// })
 
 }
 func GetBetfair() {
