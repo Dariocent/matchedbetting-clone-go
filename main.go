@@ -25,6 +25,7 @@ func main() {
 	r.POST("/login", controllers.Login)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 	r.StaticFile("/", "./templates/index.html")
-	r.GET("/betting", betting.GetMarathonBet)
+	r.GET("/betting", betting.OddsMatcher)
+
 	r.Run()
 }

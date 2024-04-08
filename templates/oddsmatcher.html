@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Oddsmatcher</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Team 1</th>
+                <th>Team 2</th>
+                <th>Rating</th>
+                <th>Bet</th>
+                <th>Lay</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .oddsmatcher_rows}}
+            <tr class="shadow-1-strong bg-white my-5 p-5">
+                <td>{{.Team1}}</td>
+                <td>{{.Team2}}</td>
+                <td>{{.Rating}}</td>
+                <td>{{.Bet}}</td>
+                <td>{{.Lay}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</body>
+</html>
