@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
-
-	"github.com/Dariocent/matchedbetting-clone-go/models"
 )
 
 func getMarketIds() []byte {
@@ -153,7 +152,7 @@ func getMarketData(body []byte) []byte {
 	defer resp.Body.Close()
 
 	// Read the response body
-	body, err = ioutil.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 
@@ -161,19 +160,8 @@ func getMarketData(body []byte) []byte {
 	return body
 }
 
-func getRunnerNames(body []byte) []models.Match {
+func getMatches(body []byte) []Match {
 	jsonData := string(body)
-	// Structs to unmarshal the JSON data
-	//Runner has description that has runnername
-	// type Description struct {
-	// 	RunnerName string `json:"runnerName"`
-	// }
-
-	// type Exchange struct {
-	// 	AvailableToLay []struct {
-	// 		Price float64 `json:"price"`
-	// 	} `json:"availableToLay"`
-	// }
 
 	type Runner struct {
 		Description struct {
@@ -187,21 +175,15 @@ func getRunnerNames(body []byte) []models.Match {
 		} `json:"exchange"`
 	}
 
-	type MarketNode struct {
-		MarketId string   `json:"marketId"`
-		Runners  []Runner `json:"runners"`
-	}
-
-	type EventNode struct {
-		MarketNodes []MarketNode `json:"marketNodes"`
-	}
-
-	type EventType struct {
-		EventNodes []EventNode `json:"eventNodes"`
-	}
-
 	type Data struct {
-		EventTypes []EventType `json:"eventTypes"`
+		EventTypes []struct {
+			EventNodes []struct {
+				MarketNodes []struct {
+					MarketId string   `json:"marketId"`
+					Runners  []Runner `json:"runners"`
+				} `json:"marketNodes"`
+			} `json:"eventNodes"`
+		} `json:"eventTypes"`
 	}
 
 	// Unmarshal JSON data into struct
@@ -215,11 +197,11 @@ func getRunnerNames(body []byte) []models.Match {
 	// Extract and print runner names
 	//fmt.Println(data.EventTypes)
 	// Extract and print runner names
-	matches := []models.Match{}
+	matches := []Match{}
 	for _, eventType := range data.EventTypes {
 		for _, eventNode := range eventType.EventNodes {
 			for _, marketNode := range eventNode.MarketNodes {
-				fmt.Println("Market ID:", marketNode.MarketId)
+				//fmt.Println("Market ID:", marketNode.MarketId)
 				runners := make([]string, 0, len(marketNode.Runners))
 				oddsArray := []float64{}
 				for _, runner := range marketNode.Runners {
@@ -242,7 +224,7 @@ func getRunnerNames(body []byte) []models.Match {
 					//empty current match
 					//if runners are 3 and oddsarray are 3
 					if len(runners) == 3 && len(oddsArray) == 3 {
-						current_match := models.Match{
+						current_match := Match{
 							Team1:     runners[0],
 							Team2:     runners[1],
 							OddsArray: oddsArray,
@@ -260,7 +242,7 @@ func getRunnerNames(body []byte) []models.Match {
 	return matches
 }
 
-func GetBetfair() []models.Match {
+func GetBetfair() []Match {
 	body := getMarketIds()
 	body = getMarketData(body)
 
@@ -268,7 +250,7 @@ func GetBetfair() []models.Match {
 	//fmt.Println(string(body))
 
 	// Get runner names
-	matches := getRunnerNames(body)
+	matches := getMatches(body)
 	//print matches where not invalid
 
 	// for _, match := range matches {
